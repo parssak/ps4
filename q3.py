@@ -6,7 +6,7 @@ Implement and evaluate the Conditional Gaussian classifier.
 
 import data
 import numpy as np
-import scipy as sp
+import scipy 
 import matplotlib.pyplot as plt
 
 def compute_mean_mles(train_data, train_labels):
@@ -74,7 +74,17 @@ def generative_likelihood(digits, means, covariances):
     likelihoods = np.zeros((N, 10))
 
     for digit in range(10):
-        likelihoods[:, digit] = np.log(sp.stats.multivariate_normal.pdf(digits, means[digit], covariances[digit]))
+        # Compute the covariance matrix for this digit
+        cov_matrix = covariances[digit]
+        # Compute the inverse covariance matrix for this digit
+        inv_cov_matrix = np.linalg.inv(cov_matrix)
+        # Compute the determinant of the covariance matrix for this digit
+        det_cov_matrix = np.linalg.det(cov_matrix)
+        # Compute the likelihood of each image for this digit
+        likelihoods[:, digit] = np.log(1/np.sqrt(2*np.pi*det_cov_matrix))
+        # Compute the likelihood of each image for this digit
+        likelihoods[:, digit] -= 0.5 * np.sum(np.dot(np.dot((digits - means[digit]), inv_cov_matrix), (digits - means[digit]).T), axis=1)
+        
 
     return likelihoods
 

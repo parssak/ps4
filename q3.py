@@ -23,11 +23,16 @@ def compute_mean_mles(train_data, train_labels):
         means: size 10 x 64 numpy array with the ith row corresponding
                to the mean estimate for digit class i
     '''
-    # Initialize array to store means
     means = np.zeros((10, 64))
-    # == YOUR CODE GOES HERE ==
-    # ====
+
+    digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    for digit in digits:
+        subset = train_data[train_labels == digit]
+        means[digit] = np.mean(subset, axis=0)
+
     return means
+
 
 def compute_sigma_mles(train_data, train_labels):
     '''
@@ -45,8 +50,14 @@ def compute_sigma_mles(train_data, train_labels):
     '''
     # Initialize array to store covariances
     covariances = np.zeros((10, 64, 64))
-    # == YOUR CODE GOES HERE ==
-    # ====
+
+    digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    for digit in digits:
+        subset = train_data[train_labels == digit]
+        centered_subset = subset - np.mean(subset, axis=0)
+        covariances[digit] = np.dot(centered_subset.T, centered_subset)
+
     return covariances
 
 def generative_likelihood(digits, means, covariances):

@@ -103,9 +103,9 @@ def conditional_likelihood(digits, means, covariances):
     '''
 
     likelihoods = generative_likelihood(digits, means, covariances)
-    print('like that like that?', likelihoods.shape)
-    assified = np.log(np.sum(np.exp(likelihoods), axis=1))
-    print('stinki', assified.shape)
+    
+    
+
     return likelihoods 
 
 

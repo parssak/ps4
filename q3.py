@@ -76,16 +76,14 @@ def generative_likelihood(digits, means, covariances):
     for digit in range(10):
         # Compute the covariance matrix for this digit
         cov_matrix = covariances[digit]
+        # To ensure numerical stability you may have to add a small multiple of the identity to each # covariance matrix. For this assignment you should add 0.01I to each covariance matrix
+        cov_matrix += 0.01 * np.identity(64)
         # Compute the inverse covariance matrix for this digit
         inv_cov_matrix = np.linalg.inv(cov_matrix)
         # Compute the determinant of the covariance matrix for this digit
         det_cov_matrix = np.linalg.det(cov_matrix)
-        # Compute the likelihood of each image for this digit
-        likelihoods[:, digit] = np.log(1/np.sqrt(2*np.pi*det_cov_matrix))
-        # Compute the likelihood of each image for this digit
-        likelihoods[:, digit] -= 0.5 * np.sum(np.dot(np.dot((digits - means[digit]), inv_cov_matrix), (digits - means[digit]).T), axis=1)
-        
-
+        # Compute the generative log-likelihood for this digit
+        likelihoods[:, digit] = np.log(1.0 / np.sqrt(2 * np.pi * det_cov_matrix))
     return likelihoods
 
 
@@ -105,8 +103,10 @@ def conditional_likelihood(digits, means, covariances):
     '''
 
     likelihoods = generative_likelihood(digits, means, covariances)
-
-    return np.log(np.sum(np.exp(likelihoods), axis=1))
+    print('like that like that?', likelihoods.shape)
+    assified = np.log(np.sum(np.exp(likelihoods), axis=1))
+    print('stinki', assified.shape)
+    return likelihoods 
 
 
 def classify_data(digits, means, covariances):
@@ -148,8 +148,13 @@ def avg_conditional_likelihood(digits, labels, means, covariances):
     assert len(digits) == len(labels)
     sample_size = len(digits)
     total_prob = 0
+    print(cond_likelihood.shape, labels.shape)
     for i in range(sample_size):
+        # try:
         total_prob += cond_likelihood[i][int(labels[i])]
+        # except:
+        #     # print(cond_likelihood[i])
+        #     print
 
     return total_prob/sample_size
 

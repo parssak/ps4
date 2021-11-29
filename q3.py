@@ -6,7 +6,7 @@ Implement and evaluate the Conditional Gaussian classifier.
 
 import data
 import numpy as np
-import scipy.special
+import scipy as sp
 import matplotlib.pyplot as plt
 
 def compute_mean_mles(train_data, train_labels):
@@ -24,10 +24,7 @@ def compute_mean_mles(train_data, train_labels):
                to the mean estimate for digit class i
     '''
     means = np.zeros((10, 64))
-
-    digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-    for digit in digits:
+    for digit in range(10):
         subset = train_data[train_labels == digit]
         means[digit] = np.mean(subset, axis=0)
 
@@ -48,17 +45,15 @@ def compute_sigma_mles(train_data, train_labels):
         covariances: size 10 x 64 x 64 numpy array with the ith row corresponding
                to the covariance matrix estimate for digit class i
     '''
-    # Initialize array to store covariances
     covariances = np.zeros((10, 64, 64))
 
-    digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-    for digit in digits:
+    for digit in range(10):
         subset = train_data[train_labels == digit]
         centered_subset = subset - np.mean(subset, axis=0)
         covariances[digit] = np.dot(centered_subset.T, centered_subset)
 
     return covariances
+
 
 def generative_likelihood(digits, means, covariances):
     '''
@@ -77,8 +72,10 @@ def generative_likelihood(digits, means, covariances):
     '''
     N = digits.shape[0]
     likelihoods = np.zeros((N, 10))
-    # == YOUR CODE GOES HERE ==
-    # ====
+
+    for digit in range(10):
+        likelihoods[:, digit] = np.log(sp.stats.multivariate_normal.pdf(digits, means[digit], covariances[digit]))
+
     return likelihoods
 
 
@@ -97,9 +94,10 @@ def conditional_likelihood(digits, means, covariances):
                to logp(t | x^(i)) for t in {0, ..., 9}
     '''
 
-    # == YOUR CODE GOES HERE ==
-    # ====
-    pass
+    likelihoods = generative_likelihood(digits, means, covariances)
+
+    return np.log(np.sum(np.exp(likelihoods), axis=1))
+
 
 def classify_data(digits, means, covariances):
     '''
@@ -115,11 +113,8 @@ def classify_data(digits, means, covariances):
         pred: size N numpy array with the ith element corresponding
                to argmax_t log p(t | x^(i))
     '''
-    # Compute and return the most likely class
-
-    # == YOUR CODE GOES HERE ==
-    # ====
-    pass
+    likelihoods = generative_likelihood(digits, means, covariances)
+    return np.argmax(likelihoods, axis=1)
 
 def avg_conditional_likelihood(digits, labels, means, covariances):
     '''
@@ -139,7 +134,6 @@ def avg_conditional_likelihood(digits, labels, means, covariances):
         average conditional log-likelihood.
     '''
     cond_likelihood = conditional_likelihood(digits, means, covariances)
-
     # Compute as described above and return
     assert len(digits) == len(labels)
     sample_size = len(digits)

@@ -86,6 +86,36 @@ def generative_likelihood(digits, means, covariances):
         likelihoods[:, digit] = np.log(1.0 / np.sqrt(2 * np.pi * det_cov_matrix))
     return likelihoods
 
+def generative_likelihood(digits, means, covariances):
+    '''
+    Compute the generative log-likelihood log p(x|t). You may iterate over
+    the possible digits (0 to 9), but otherwise make sure that your code
+    is vectorized.
+
+    Arguments
+        digits: size N x 64 numpy array with the images
+        means: size 10 x 64 numpy array with the 10 class means
+        covariances: size 10 x 64 x 64 numpy array with the 10 class covariances
+    
+    Returns
+        likelihoods: size N x 10 numpy array with the ith row corresponding
+               to logp(x^(i) | t) for t in {0, ..., 9}
+    '''
+    N = digits.shape[0]
+    likelihoods = np.zeros((N, 10))
+
+    for digit in range(10):
+        new_mean = means[digit]
+        new_cov = covariances[digit]
+        new_cov_inv = np.linalg.inv(new_cov)
+
+        mu = digits - new_mean
+        likelihoods[:, digit] = -0.5 * \
+            np.sum(np.dot(mu, new_cov_inv) * mu, axis=1)
+        - 0.5 * np.log(np.linalg.det(new_cov)) - 0.5 * 64 * np.log(2 * np.pi)
+
+    return likelihoods
+
 
 def conditional_likelihood(digits, means, covariances):
     '''
